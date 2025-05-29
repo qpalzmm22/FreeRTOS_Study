@@ -1,6 +1,11 @@
 # Mastering the FreeRTOS Real Time Kernel v1.1.0
 
-## 4. Task Management 
+## 4. Task Management
+
+### Overview 
+- Task 생성, 삭제
+- Task State
+- Scheduling 방식
 
 ### 4.1 ~ 4.2
 - Task 는 작은 프로그램임. Entry Point를 가지고 보통 무한루프를 돔.
@@ -246,12 +251,13 @@ Task 2 is running
 - `vTaskDelayUntil()` 함수는 `vTaskDelay()`햠수는 해당 함수가 불렸을 때 부터 일때에 반해 `vTaskDelayUntil()`는 Task가 실행되고 나서의 시간을 재기 때문에 더 정확하다.
 
 <details close>
-    <summary>vTaskDelayUntil() 쓰는방법</summary>
-Task 1 : P2 
-- Task2의 Priority를 Task1의 priority 보다 1높임
+    <summary>vTaskDelayUntil() 쓰는 방법</summary>
 
-Task 2 : P1 
-- 자신의 Priority를 2낮춤
+**Task 1** : Priority = 2 
+-> Task2의 Priority를 Task1의 priority 보다 1높임
+
+**Task 2** : Priority = 1
+-> 자신의 Priority를 2낮춤
 
 
 ```c
@@ -297,14 +303,14 @@ void vTaskFunction( void * pvParameters )
 #### 4.8 Idle Task
 
 - Running State인 Task가 항상 하나는 있어야 하기때문에 Idle Task가 존재한다.
-- Idle Task는 그래서 우선순위가 가장 낮다(0).
-- 사용자가 우선순위가 0인 Task를 생성할수도 있는데 TODO...
+- `Idle Task`는 그래서 우선순위가 가장 낮다(0).
+- 사용자가 우선순위가 0인 Task를 생성할수도 있다.
 - 우선순위가 낮은 Task가 CPU 점유가 뺏기는걸 `Preemption` 이라고 함
-- vTaskDelete()로 자기 자신을 삭제한 태스크의 자원 회수는 Idle 태스크가 담당함
+- `vTaskDelete()`로 자기 자신을 삭제한 태스크의 자원 회수는 Idle 태스크가 담당함
 - Idle 태스크가 실행될 수 있는 시간이 반드시 보장되어야 한다. 그렇지 않으면 자원 누수(memory leak)나 시스템 불안정이 발생할 수 있다.
-- 그에 따라서 Idle Hook 함수(Idle Task 실행할때 설정가능한 사용자 설정 함수)에서는 Blocking 함수 사용 금지, 오래 걸리지 않도록 구현이 필요하다.
+- 그에 따라서 `Idle Hook` 함수(Idle Task 실행할 때 설정가능한 사용자 설정 함수) 에서는 Blocking 함수 사용 금지, 오래 걸리지 않도록 구현이 필요하다.
 
-- Idle Hook 함수는 특별해서 API가 정해져있다
+- Idle Hook 함수의 API는 아래와 같다
 ```c
 void vApplicationIdleHook( void );
 ```
@@ -434,7 +440,7 @@ int main( void )
 #### 4.11 Thread Local Storage and Reentrancy
 
 - `Thread Local Storage` : TCB 내에 있는 Task 독립적인 저장공간 (Task 가 독립적으로 가지고 있는 전역 변수라고 생각하면 편함)
-- 왜 굳이 전역 변수를 쓸까? 그냥 Stack(로컬변수) 를 쓰면 안될까? => 가장 현실적인 예로 두 Task가 하나의 함수에서 동일한 static 변수를 사용할때 Race Condition 이 문제가 될수가 있다. 이를 방지하기 위해 TLS 필요
+- 왜 굳이 전역 변수를 쓸까? 그냥 Stack(로컬변수) 를 쓰면 안될까? => 가장 현실적인 예로 두 Task가 하나의 함수에서 동일한 static 변수를 사용할때 Race Condition 이 문제가 될수가 있다. 이를 방지하기 위해 `TLS` 필요
 - 이와 같이 여러 Task 가 실행시 문제가 될수 있는 함수를 `Non-Reentrant function` 이라고 한다.
 - 그 반대로 여러 Task 가 실행시에도 문제가 안되는 함수를 `Reentrant function`이라고 한다.
 
